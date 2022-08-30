@@ -222,6 +222,10 @@ func (param *Param) ToURL() string {
 	return u.String()
 }
 
+func Search(param *Param) (*SearchResult, error) {
+	return param.Search()
+}
+
 func (param *Param) Search() (*SearchResult, error) {
 	body, err := fetch(param.ToURL())
 	if err != nil {
