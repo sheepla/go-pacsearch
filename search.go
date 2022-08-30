@@ -20,6 +20,7 @@ type Param struct {
 	Maintainer string    `name:"maintainer"`
 	Packager   string    `name:"packager"`
 	OutOfDate  OutOfDate `name:"flagged"`
+	Limit      int       `name:"limit"`
 }
 
 type OutOfDate int

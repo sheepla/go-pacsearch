@@ -124,3 +124,28 @@ func TestParamToURL(t *testing.T) {
 		t.Errorf("have=%s, want=%s", have, want)
 	}
 }
+
+func TestFetch(t *testing.T) {
+	body, err := fetch("https://www.archlinux.org/packages/search/json?q=vim&limit=3")
+	if err != nil {
+		t.Error(err)
+	}
+	defer body.Close()
+
+	t.Log(body)
+}
+
+func TestSearch(t *testing.T) {
+	body, err := fetch("https://www.archlinux.org/packages/search/json?q=vim&limit=3")
+	if err != nil {
+		t.Error(err)
+	}
+	defer body.Close()
+
+	result, err := decodeToSearchResult(body)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Log(result)
+}
