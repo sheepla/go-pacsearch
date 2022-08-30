@@ -1,7 +1,7 @@
 # go-pacsearch
 
-A Go library for searching packages and getting information from the Arch Linux official repository and AUR
+A Go library for searching Arch Linux packages via [Official Repository Web Interface](https://wiki.archlinux.org/title/Official_repositories_web_interface)
 
 ## License
 
-MIT
+[MIT](./LICENSE)
