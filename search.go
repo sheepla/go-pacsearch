@@ -1,9 +1,14 @@
 package pacsearch
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 type Param struct {
@@ -95,6 +100,43 @@ func (r Repo) String() string {
 	}
 }
 
+//nolint:tagliatelle
+type SearchResult struct {
+	Limit    int64 `json:"limit"`
+	NumPages int64 `json:"num_pages"`
+	Page     int64 `json:"page"`
+	Results  []struct {
+		Arch           string   `json:"arch"`
+		BuildDate      string   `json:"build_date"`
+		Checkdepends   []string `json:"checkdepends"`
+		CompressedSize int64    `json:"compressed_size"`
+		Conflicts      []string `json:"conflicts"`
+		Depends        []string `json:"depends"`
+		Epoch          int64    `json:"epoch"`
+		Filename       string   `json:"filename"`
+		FlagDate       string   `json:"flag_date"`
+		Groups         []string `json:"groups"`
+		InstalledSize  int64    `json:"installed_size"`
+		LastUpdate     string   `json:"last_update"`
+		Licenses       []string `json:"licenses"`
+		Maintainers    []string `json:"maintainers"`
+		Makedepends    []string `json:"makedepends"`
+		Optdepends     []string `json:"optdepends"`
+		Packager       string   `json:"packager"`
+		Pkgbase        string   `json:"pkgbase"`
+		Pkgdesc        string   `json:"pkgdesc"`
+		Pkgname        string   `json:"pkgname"`
+		Pkgrel         string   `json:"pkgrel"`
+		Pkgver         string   `json:"pkgver"`
+		Provides       []string `json:"provides"`
+		Replaces       []string `json:"replaces"`
+		Repo           string   `json:"repo"`
+		URL            string   `json:"url"`
+	} `json:"results"`
+	Valid   bool  `json:"valid"`
+	Version int64 `json:"version"`
+}
+
 var (
 	ErrQueryIsEmpty    = errors.New("query is empty")
 	ErrQueryIsTooShort = errors.New("query is too short")
@@ -177,6 +219,54 @@ func (param *Param) ToURL() string {
 	}
 
 	return u.String()
+}
+
+func (param *Param) Search() (*SearchResult, error) {
+	body, err := fetch(param.ToURL())
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch the result: %w", err)
+	}
+	defer body.Close()
+
+	result, err := decodeToSearchResult(body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse the search result: %w", err)
+	}
+
+	return result, nil
+}
+
+const timeout = 10 * time.Second
+
+func fetch(url string) (io.ReadCloser, error) {
+	//nolint:exhaustivestruct,exhaustruct
+	client := &http.Client{Timeout: timeout}
+
+	//nolint:noctx
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		if res.StatusCode < 200 || 300 < res.StatusCode {
+			return nil, fmt.Errorf("HTTP error (%s): %w", res.Status, err)
+		}
+
+		return nil, fmt.Errorf("failed to get the response: %w", err)
+	}
+
+	return res.Body, nil
+}
+
+func decodeToSearchResult(body io.Reader) (*SearchResult, error) {
+	var result SearchResult
+	if err := json.NewDecoder(body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode JSON: %w", err)
+	}
+
+	return &result, nil
 }
 
 func isEmptyString(s string) bool {
