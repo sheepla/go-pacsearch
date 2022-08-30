@@ -44,10 +44,10 @@ func (o OutOfDate) String() string {
 type Arch int
 
 const (
-	ArchAny   Arch = iota + 1
-	ArchX8664 Arch = iota + 1
-	ArchI686  Arch = iota + 1
-	ArchNone  Arch = iota + 1
+	ArchAny Arch = iota + 1
+	ArchX8664
+	ArchI686
+	ArchNone
 )
 
 func (a Arch) String() string {
@@ -68,7 +68,7 @@ func (a Arch) String() string {
 type Repo int
 
 const (
-	RepoCore Repo = iota
+	RepoCore Repo = iota + 1
 	RepoExtra
 	RepoTesting
 	RepoMultilib
