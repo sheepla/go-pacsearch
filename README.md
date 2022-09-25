@@ -1,6 +1,20 @@
+<div align="center">
+
 # go-pacsearch
 
-A Go library for searching Arch Linux packages via [Official Repository Web Interface](https://wiki.archlinux.org/title/Official_repositories_web_interface)
+</div>
+
+<div align="center">
+
+*WIP* A Go package for searching Arch Linux packages via [Official Repository Web Interface](https://wiki.archlinux.org/title/Official_repositories_web_interface)
+
+</div>
+
+<div align="center">
+
+*This repository is still under development. Specifications subject to change without notice.*
+
+</div>
 
 ## Examples
 
